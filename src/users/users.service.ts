@@ -15,8 +15,8 @@ export class UsersService {
                 OR: [
                     {login: createUserDto.login},
                     {email: createUserDto.email}
-                ]
-            }
+                ],
+            },
         })
         if (existingUser) {
             throw new ConflictException("ERROR User already registered ")
@@ -48,7 +48,7 @@ export class UsersService {
                 age: true,
                 description: true,
                 createdAt: true,
-                updatedAt: true,
+                updateAt: true,
             }
         })
 
@@ -112,7 +112,7 @@ export class UsersService {
                 age: true,
                 description: true,
                 createdAt: true,
-                updatedAt: true,
+                updateAt: true,
             }
         })
     }
