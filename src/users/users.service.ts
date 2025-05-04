@@ -75,6 +75,14 @@ export class UsersService {
         if(!user || user.password !== loginUserDto.password) {
             throw new UnauthorizedException("Invalid login or password")
         }
+
+        return {
+            id: user.id,
+            login: user.login,
+            email: user.email,
+            age: user.age,
+            description: user.description,
+          };
     }
 
     async update(id: number, updateUserDto: UpdateUserDto) {
