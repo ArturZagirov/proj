@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Session } from '@nestjs/common';
+import { Body, ConflictException, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Session } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -53,6 +53,9 @@ export class UsersController {
 
     @Get('profile/my')
     getMyProfile(@Session() session: Record<string, any>) {
+        if (!session.userId) {
+            return {mess: "ERROR"}
+        }
         return this.usersService.getMyProfile(session.userId)
     }
 }

@@ -101,6 +101,10 @@ export class UsersService {
                     }
                 }
             })
+
+            if (existingUser) {
+                throw new ConflictException('ERROR ');
+              }
         }
         return this.prisma.user.update({
             where: {id},
