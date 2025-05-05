@@ -116,4 +116,9 @@ export class UsersService {
             }
         })
     }
+
+    async getMyProfile(userId: number) {
+        return this.findOne(userId);
+      }
 }
+

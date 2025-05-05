@@ -50,4 +50,9 @@ export class UsersController {
     delete(@Param('id') id: string) {
         return this.usersService.remove(+id)
     }
+
+    @Get('profile/my')
+    getMyProfile(@Session() session: Record<string, any>) {
+        return this.usersService.getMyProfile(session.userId)
+    }
 }
