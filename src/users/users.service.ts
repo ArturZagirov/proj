@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -21,9 +22,13 @@ export class UsersService {
         if (existingUser) {
             throw new ConflictException("ERROR User already registered ")
         }
+        const hashedPassword = await bcrypt.hash(createUserDto.password, 10)
 
         return this.prisma.user.create({
-            data: createUserDto
+            data: {
+            ...createUserDto,
+            password: hashedPassword
+            }
         })
     }
 
@@ -45,6 +50,7 @@ export class UsersService {
                 id: true,
                 login: true,
                 email: true,
+                password: true,
                 age: true,
                 description: true,
                 createdAt: true,
@@ -85,7 +91,7 @@ export class UsersService {
           };
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto) {
+    async update(id: number, updateUserDto: UpdateUserDto) {         // Доделать с хэш
 
         await this.findOne(id);
 

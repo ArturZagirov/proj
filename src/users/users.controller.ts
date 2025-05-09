@@ -14,6 +14,7 @@ export class UsersController {
         session.userId = user.id;
 
         const {password, ...result} = user;
+        // hash = await bcrypt.hash(password, saltOrRounds)
         return result
     }
 
