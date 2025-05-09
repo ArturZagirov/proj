@@ -124,5 +124,19 @@ export class UsersService {
     async getMyProfile(userId: number) {
         return this.findOne(userId);
       }
+
+    async paginate(take: number, page: number) {
+        return this.prisma.user.findMany({
+            skip: take * (page-1),
+            take: take,
+            select: {
+                id: true,
+                login: true,
+                email: true,
+                age: true,
+                description: true,
+            }
+        })
+    }
 }
 

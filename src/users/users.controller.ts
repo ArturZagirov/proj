@@ -1,4 +1,4 @@
-import { Body, ConflictException, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Session } from '@nestjs/common';
+import { Body, ConflictException, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Session } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -35,6 +35,11 @@ export class UsersController {
     findAll() {
         return this.usersService.findAll()
     }
+
+    @Get('pag')
+    paginate(@Query("take") take: string, @Query("page") page: string) {       // TEST
+        return this.usersService.paginate(+take, +page)
+    } 
 
     @Get(':id')
     findOne(@Param('id') id: string) {
