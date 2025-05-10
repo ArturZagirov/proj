@@ -78,7 +78,9 @@ export class UsersService {
             }
         )
 
-        if(!user || user.password !== loginUserDto.password) {
+        //const isMatch = await bcrypt.compare(loginUserDto.password, user.password)
+
+        if(!user || !await bcrypt.compare(loginUserDto.password, user.password)) { // !user || await bcrypt.compare(loginUserDto.password, user.password)
             throw new UnauthorizedException("Invalid login or password")
         }
 
@@ -112,9 +114,27 @@ export class UsersService {
                 throw new ConflictException('ERROR ');
               }
         }
+
+        const user = await this.prisma.user.findUnique({
+                where: {id: id},
+                select: {
+                password: true
+                }
+            });
+            
+            const password = user?.password;
+
+            if (!password) {
+                throw new Error('ERROR '); }
+
+            const hashedPassword = await bcrypt.hash(password, 10)
+
+
         return this.prisma.user.update({
             where: {id},
-            data: updateUserDto,
+            data:  {...updateUserDto,
+                    password: hashedPassword
+            },
             select: {
                 id: true,
                 login: true,
