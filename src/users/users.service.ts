@@ -9,29 +9,6 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
     constructor(private prisma: PrismaService) {}
 
-    async create(createUserDto: CreateUserDto) {
-        
-        const existingUser = await this.prisma.user.findFirst({
-            where: {
-                OR: [
-                    {login: createUserDto.login},
-                    {email: createUserDto.email}
-                ],
-            },
-        })
-        if (existingUser) {
-            throw new ConflictException("ERROR User already registered ")
-        }
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10)
-
-        return this.prisma.user.create({
-            data: {
-            ...createUserDto,
-            password: hashedPassword
-            }
-        })
-    }
-
     async findAll() {
         return this.prisma.user.findMany({
             select: {
@@ -43,6 +20,8 @@ export class UsersService {
             }
         })
     }
+
+
     async findOne(id: number) {
         const user = await this.prisma.user.findUnique({
             where: {id: id},
@@ -71,26 +50,6 @@ export class UsersService {
         return this.prisma.user.delete({
             where: {id}
         })
-    }
-    async login(loginUserDto: LoginUserDto) {
-        const user = await this.prisma.user.findUnique({
-            where: {login: loginUserDto.login}
-            }
-        )
-
-        //const isMatch = await bcrypt.compare(loginUserDto.password, user.password)
-
-        if(!user || !await bcrypt.compare(loginUserDto.password, user.password)) { // !user || await bcrypt.compare(loginUserDto.password, user.password)
-            throw new UnauthorizedException("Invalid login or password")
-        }
-
-        return {
-            id: user.id,
-            login: user.login,
-            email: user.email,
-            age: user.age,
-            description: user.description,
-          };
     }
 
     async update(id: number, updateUserDto: UpdateUserDto) {         // Доделать с хэш
@@ -121,7 +80,7 @@ export class UsersService {
                 password: true
                 }
             });
-            
+
             const password = user?.password;
 
             if (!password) {

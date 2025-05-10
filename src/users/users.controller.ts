@@ -8,23 +8,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Post('register')
-    async register(@Body() createUserDto: CreateUserDto, @Session() session: Record<string, any>) {
-        const user = await this.usersService.create(createUserDto)
-        session.userId = user.id;
-
-        const {password, ...result} = user;
-        return result
-    }
-
-    @Post('login')
-    @HttpCode(HttpStatus.OK)
-    async login(@Body() loginUserDto: LoginUserDto, @Session() session: Record<string, any>) {
-        const user = await this.usersService.login(loginUserDto)
-        session.userId = user.id;
-        return user
-    }
-
     @Post('logout')
     @HttpCode(HttpStatus.OK)
     logout(@Session() session: Record<string, any>) {
