@@ -18,4 +18,5 @@ model User {
   description String?  @db.VarChar(1000)
   createdAt   DateTime @default(now())
   updateAt    DateTime @updatedAt
+  deleted     Boolean  @default(false)
 }

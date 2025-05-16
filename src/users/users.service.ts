@@ -11,6 +11,7 @@ export class UsersService {
 
     async findAll() {
         return this.prisma.user.findMany({
+            where: {deleted: false},
             select: {
                 id: true,
                 login: true,
@@ -34,6 +35,7 @@ export class UsersService {
                 description: true,
                 createdAt: true,
                 updateAt: true,
+                deleted: true,
             }
         })
 
@@ -93,7 +95,7 @@ export class UsersService {
             where: {id},
             data:  {...updateUserDto,
                     password: hashedPassword
-            },
+                },
             select: {
                 id: true,
                 login: true,
@@ -121,6 +123,13 @@ export class UsersService {
                 age: true,
                 description: true,
             }
+        })
+    }
+
+    async softDelete(id: number) {
+        return this.prisma.user.update({
+            where: {id: id},
+            data: {deleted: true}
         })
     }
 }

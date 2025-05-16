@@ -39,6 +39,11 @@ export class UsersController {
         return this.usersService.remove(+id)
     }
 
+    @Delete('soft/:id')
+    softDelete(@Param('id') id: string) {
+        return this.usersService.softDelete(+id)
+    }
+
     @Get('profile/my')
     getMyProfile(@Session() session: Record<string, any>) {
         if (!session.userId) {
