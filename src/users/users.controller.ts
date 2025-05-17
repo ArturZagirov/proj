@@ -3,10 +3,11 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersRepository } from './users.repository';
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService, private usersRepository: UsersRepository) {}
 
     @Post('logout')
     @HttpCode(HttpStatus.OK)
@@ -20,7 +21,7 @@ export class UsersController {
     }
 
     @Get('pag')
-    paginate(@Query("take") take: string, @Query("page") page: string) {       // TEST
+    paginate(@Query("take") take: string, @Query("page") page: string) {       
         return this.usersService.paginate(+take, +page)
     } 
 

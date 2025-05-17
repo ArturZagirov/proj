@@ -3,14 +3,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class AuthService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService, private userRepository: UsersRepository) {}
 
     async create(createUserDto: CreateUserDto) {
             
-            const existingUser = await this.prisma.user.findFirst({
+            const existingUser = await this.prisma.user.findFirst({       // Доделать в UserRepository
                 where: {
                     OR: [
                         {login: createUserDto.login},
@@ -24,16 +25,11 @@ export class AuthService {
             }
             const hashedPassword = await bcrypt.hash(createUserDto.password, 10)
     
-            return this.prisma.user.create({
-                data: {
-                ...createUserDto,
-                password: hashedPassword
-                }
-            })
+            return this.userRepository.create(createUserDto, hashedPassword)
     }
 
     async login(loginUserDto: LoginUserDto) {
-            const user = await this.prisma.user.findUnique({
+            const user = await this.prisma.user.findUnique({ // доделать в UserRepository
                 where: {login: loginUserDto.login}
                 }
             )
