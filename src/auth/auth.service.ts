@@ -28,11 +28,10 @@ export class AuthService {
         if (existingUser) {
             throw new ConflictException("ERROR User already registered ")
         }
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10)
 
-        // const [accessToken, refreshToken] = this.getTokens()
+        const hashedPassword = await bcrypt.hash(createUserDto.password, 10)
     
-        await this.userRepository.create(createUserDto, hashedPassword) // Доделать // Создается
+        await this.userRepository.create(createUserDto, hashedPassword) 
 
         
         return this.login({login: createUserDto.login,
@@ -50,27 +49,17 @@ export class AuthService {
         if (!isMatch) {
             throw new UnauthorizedException("Invalid login or password")
         }
-        const user = await this.prisma.user.findFirst({          
-            where: {login: loginUserDto.login},
-            select: {
-                id: true,
-                login: true,
-                email: true,
-                age: true,
-                description: true,
-                createdAt: true,
-                updateAt: true,
-            }
-        })
+
+        const user = await this.userRepository.findFirstLogin(loginUserDto.login)
 
         if (!user) {
-            throw new UnauthorizedException("ERROR")
+            throw new UnauthorizedException("User Not Found")
         }
 
-         const tokens = this.getTokens(user)
+         const tokens = await this.getTokens(user)
 
-         const accessToken = (await tokens).accessToken
-         const refreshToken = (await tokens).refreshToken
+         const accessToken = tokens.accessToken
+         const refreshToken = tokens.refreshToken
 
          return {
             accessToken,
@@ -83,9 +72,8 @@ export class AuthService {
 
 
     async validateUser(loginUserDto: LoginUserDto) {    // доделать в UserRepository
-        const user = await this.prisma.user.findUnique({
-            where: {login: loginUserDto.login}
-        })
+
+        const user = await this.userRepository.findFirstLogin(loginUserDto.login)
 
         if (!user) {
             return null
@@ -97,13 +85,7 @@ export class AuthService {
             return null
         }
 
-        return {
-            id: user.id,
-            login: user.login,
-            email: user.email,
-            age: user.age,
-            description: user.description,
-        }
+        return user
     }
 
 
@@ -141,20 +123,22 @@ export class AuthService {
 
 
     async updateRefreshToken(userId: string, refreshToken: string) {
+
          const user = await this.userRepository.findOne(+userId);
         // const isMatch = await bcrypt.compare(refreshToken, user)
         if (!user || !user.refresh) {
-            throw new ConflictException("ERROR")
+            throw new ConflictException("User OR Token Not Found")
         }
+
         const isMatch = await bcrypt.compare(refreshToken, user.refresh)
 
         if (!isMatch) {
             throw new ConflictException("Invalid refresh token")
         }
 
-        const tokens = this.getTokens(user);
-        const accessToken = (await tokens).accessToken
-        const refresh = (await tokens).refreshToken
+        const tokens = await this.getTokens(user);
+        const accessToken = tokens.accessToken
+        const refresh = tokens.refreshToken
 
         return {
             accessToken,

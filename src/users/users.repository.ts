@@ -176,4 +176,19 @@ export class UsersRepository {
         })
     }
 
+    async findFirstLogin(login: string) {
+        return this.prisma.user.findFirst({          
+            where: {login: login},
+            select: {
+                id: true,
+                login: true,
+                email: true,
+                password: true,
+                age: true,
+                description: true,
+                createdAt: true,
+                updateAt: true,
+            }
+        })
+    }
 }
