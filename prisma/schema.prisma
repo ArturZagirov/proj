@@ -19,4 +19,5 @@ model User {
   createdAt   DateTime @default(now())
   updateAt    DateTime @updatedAt
   deleted     Boolean  @default(false)
+  refresh     String?   
 }

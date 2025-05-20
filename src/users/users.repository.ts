@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { LoginUserDto } from "./dto/login-user.dto";
 
 
 @Injectable()
@@ -34,6 +35,7 @@ export class UsersRepository {
                 createdAt: true,
                 updateAt: true,
                 deleted: true,
+                refresh: true,
             }
         })
         return user
@@ -45,7 +47,7 @@ export class UsersRepository {
         })
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto, hashedPassword: string) {
+    async update(id: number, updateUserDto: UpdateUserDto, hashedPassword?: string) {
         return this.prisma.user.update({
             where: {id},
             data:  {...updateUserDto,
@@ -63,11 +65,11 @@ export class UsersRepository {
         })
     }
 
-    async create(createUserDto: CreateUserDto, hashedPassword: string) {
+    async create(createUserDto: CreateUserDto, hashedPassword: string, ) {
         return this.prisma.user.create({
             data: {
                 ...createUserDto,
-                password: hashedPassword
+                password: hashedPassword,
                 }
         })
     }
@@ -79,4 +81,60 @@ export class UsersRepository {
         })
     }
 
+    async findByEmail(email: string) {
+        return this.prisma.user.findUnique({
+            where :{email: email},
+            // select: {
+            //     id: true,
+            //     login: true,
+            //     email: true,
+            //     age: true,
+            //     description: true,
+            //     createdAt: true,
+            //     updateAt: true,
+            // }
+        })
+    }
+
+    async findByLogin(login: string) {
+        return this.prisma.user.findUnique({
+            where: {login: login},
+            // select: {
+            //     id: true,
+            //     login: true,
+            //     email: true,
+            //     age: true,
+            //     description: true,
+            //     createdAt: true,
+            //     updateAt: true,
+            //     }
+        })
+    }
+
+    async findFirst(login: string, email: string) {
+        return this.prisma.user.findFirst({
+            where: {
+                OR: [
+                    {login: login},
+                    {email: email}
+                ]
+            }
+        })
+    }
+
+    async updateRefresh(id: number, refreshToken: string | null) {
+        return this.prisma.user.update({
+            where: {id: id},
+            data: {refresh: refreshToken},
+            select: {
+                id: true,
+                login: true,
+                email: true,
+                age: true,
+                description: true,
+                createdAt: true,
+                updateAt: true,
+            }
+        })
+    }
 }
