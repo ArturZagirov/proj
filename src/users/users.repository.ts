@@ -137,4 +137,43 @@ export class UsersRepository {
             }
         })
     }
+
+    async findExistingUser(login: string | undefined, email: string | undefined, id: number) {
+        return this.prisma.user.findFirst({
+            where: {
+                OR: [
+                    login ? {login: login} : {},
+                    email ? {email: email} : {},
+                ],
+                NOT: {
+                    id,
+                }
+            }
+        })
+    }
+
+    async getUserPassword(id: number) {
+        return this.prisma.user.findUnique({
+            where: {id: id},
+            select: {
+                password: true
+            }
+        })
+    }
+
+
+    async paginate(take: number, page: number) {
+        return this.prisma.user.findMany({
+            skip: take * (page-1),
+            take: take,
+            select: {
+                id: true,
+                login: true,
+                email: true,
+                age: true,
+                description: true,
+            }
+        })
+    }
+
 }

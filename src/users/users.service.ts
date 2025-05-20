@@ -10,10 +10,6 @@ import { UsersRepository } from './users.repository';
 export class UsersService {
     constructor(private prisma: PrismaService, private usersRepository: UsersRepository) {}
 
-    async findAll() {
-        return this.usersRepository.findAll()
-    }
-
     async findOne(id: number) {
         const user = await this.usersRepository.findOne(id)
 
@@ -23,69 +19,63 @@ export class UsersService {
         return user
     }
 
+
+
+
     async remove(id: number) {
         await this.findOne(id)
 
         return this.usersRepository.delete(id)
     }
 
+
+
+
+
     async update(id: number, updateUserDto: UpdateUserDto) {         // Доделать с хэш
 
-        await this.usersRepository.findOne(id)
+        await this.findOne(id)
 
         if (updateUserDto.login || updateUserDto.email) {
-            const existingUser = await this.prisma.user.findFirst({
-                where: {
-                    OR: [
-                        updateUserDto.login ? {login: updateUserDto.login} : {},
-                        updateUserDto.email ? {login: updateUserDto.email} : {},
-                    ],
-                    NOT: {
-                        id,
-                    }
-                }
-            })
+            const existingUser = await this.usersRepository.findExistingUser(updateUserDto.login, updateUserDto.email, id)
 
             if (existingUser) {
                 throw new ConflictException('ERROR ');
               }
         }
 
-        const user = await this.prisma.user.findUnique({
-                where: {id: id},
-                select: {
-                password: true
-                }
-            });
+        const user = await this.usersRepository.getUserPassword(id)
 
-            const password = user?.password;
+        const password = user?.password;
 
-            if (!password) {
-                throw new Error('ERROR '); }
+        if (!password) {
+            throw new Error('ERROR '); }
 
-            const hashedPassword = await bcrypt.hash(password, 10)
+        const hashedPassword = await bcrypt.hash(password, 10)
 
         return this.usersRepository.update(id, updateUserDto, hashedPassword)
     }
+
+
+
+
 
     async getMyProfile(userId: number) {
         return this.usersRepository.findOne(userId);
       }
 
+
+
+
+
+
     async paginate(take: number, page: number) {    // Доделать с UserRepo
-        return this.prisma.user.findMany({
-            skip: take * (page-1),
-            take: take,
-            select: {
-                id: true,
-                login: true,
-                email: true,
-                age: true,
-                description: true,
-            }
-        })
+        return this.usersRepository.paginate(take, page)
     }
 
+
+
+    
     async softDelete(id: number) {
         return this.usersRepository.softDelete(id)
     }

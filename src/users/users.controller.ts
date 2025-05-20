@@ -14,15 +14,11 @@ export class UsersController {
                 private usersRepository: UsersRepository,
                 private authService: AuthService) {}
 
-    // @Post('logout')
-    // @HttpCode(HttpStatus.OK)
-    // logout(@Session() session: Record<string, any>) {
-    //     session.userId = null
-    // }
+
 
     @Get()
     findAll() {
-        return this.usersService.findAll()
+        return this.usersRepository.findAll()
     }
 
     @Get('pag')
@@ -50,19 +46,12 @@ export class UsersController {
         return this.usersService.softDelete(+id)
     }
 
-    // @Get('profile/my')
-    // getMyProfile(@Session() session: Record<string, any>) {
-    //     if (!session.userId) {
-    //         return {mess: "ERROR"}
-    //     }
-    //     return this.usersService.getMyProfile(session.userId)
-    // }
+
     @UseGuards(JwtAuthGuard)
     @Get('profile/my')
     getMyProfile(@Req() req: Request) {
         const refresh = req.cookies['refresh_token']
         const decoded = this.authService['jwtService'].decode(refresh)
-        // return this.usersRepository.findOne(+decoded['sub'])
         return req.user
     }
 }
