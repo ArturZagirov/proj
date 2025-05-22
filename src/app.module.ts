@@ -1,6 +1,4 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { APP_PIPE } from '@nestjs/core';
@@ -11,9 +9,8 @@ import { ConfigModule } from '@nestjs/config';
   imports: [UsersModule, PrismaModule, AuthModule, ConfigModule.forRoot({
       isGlobal: true, 
     })],
-  controllers: [AppController], 
+  controllers: [], 
   providers: [ 
-    AppService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
