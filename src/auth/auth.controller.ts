@@ -72,16 +72,16 @@ export class AuthController {
     @Post("login")
     async login(@Body() loginUserDto: LoginUserDto,
                 @Res() response: Response) {
-        const tokens = this.authService.login(loginUserDto);
+        const tokens = await this.authService.login(loginUserDto);
 
-        response.cookie('refresh_token', (await tokens).refreshToken, {
+        response.cookie('refresh_token', tokens.refreshToken, {
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        return {accessToken: (await tokens).accessToken}
+        return {accessToken: tokens.accessToken}
     }
 
 
