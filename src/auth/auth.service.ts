@@ -6,18 +6,14 @@ import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { UsersRepository } from 'src/users/users.repository';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
     constructor(private prisma: PrismaService,
                 private userRepository: UsersRepository,
-                private jwtService: JwtService,) {}
-
-
-    private readonly ACCESS_TOKEN_SECRET = 'SECRETACCESS'; 
-    private readonly REFRESH_TOKEN_SECRET = 'SECRETREFRESH'; 
-    private readonly ACCESS_TOKEN_EXPIRATION = '15m'; 
-    private readonly REFRESH_TOKEN_EXPIRATION = '7d'; 
+                private jwtService: JwtService,
+                private config: ConfigService) {}
 
 
 
@@ -43,7 +39,7 @@ export class AuthService {
 
 
 
-    async login(loginUserDto: LoginUserDto) {                  // Доделать
+    async login(loginUserDto: LoginUserDto) {                  
         const isMatch = this.validateUser(loginUserDto)
 
         if (!isMatch) {
@@ -71,7 +67,7 @@ export class AuthService {
 
 
 
-    async validateUser(loginUserDto: LoginUserDto) {    // доделать в UserRepository
+    async validateUser(loginUserDto: LoginUserDto) {    
 
         const user = await this.userRepository.findFirstLogin(loginUserDto.login)
 
@@ -99,13 +95,13 @@ export class AuthService {
         }
 
         const accessToken = this.jwtService.sign(payload, {
-            secret: this.ACCESS_TOKEN_SECRET,
-            expiresIn: this.ACCESS_TOKEN_EXPIRATION
+            secret: this.config.get("ACCESS_TOKEN_SECRET"),                                 //this.ACCESS_TOKEN_SECRET,                                                    
+            expiresIn: this.config.get("ACCESS_TOKEN_EXPIRATION")                           //this.ACCESS_TOKEN_EXPIRATION                                                      
         })
         
         const refreshToken = this.jwtService.sign(payload, {
-            secret: this.REFRESH_TOKEN_SECRET,
-            expiresIn: this.REFRESH_TOKEN_EXPIRATION
+            secret:  this.config.get("REFRESH_TOKEN_SECRET"),                               // this.REFRESH_TOKEN_SECRET,                                                                 
+            expiresIn:  this.config.get("REFRESH_TOKEN_EXPIRATION"),                        //this.REFRESH_TOKEN_EXPIRATION                                                          
         })
         
         const hashedRefresh = await bcrypt.hash(refreshToken, 10)

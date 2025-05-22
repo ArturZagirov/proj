@@ -22,7 +22,7 @@ export class AuthController {
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        return {accessToken: (await tokens).accessToken}
+        return { accessToken: (await tokens).accessToken }
     }
 
 
@@ -81,7 +81,7 @@ export class AuthController {
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        return {accessToken: tokens.accessToken}
+        return response.json({ accessToken: tokens.accessToken })
     }
 
 
